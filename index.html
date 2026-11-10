@@ -1043,19 +1043,18 @@ const customFrameFiles = [
 const customFrameImages = [];
 
 function drawTemplatePhoto(ctx, shot, x, y, w, h, radius = 10){
-  const pad = Math.max(10, Math.min(w, h) * 0.04);
   if (!shot) {
     ctx.fillStyle = 'rgba(255,255,255,.34)';
-    rr(ctx, x + pad / 2, y + pad / 2, w - pad, h - pad, radius);
+    rr(ctx, x, y, w, h, radius);
     ctx.fill();
     return;
   }
 
   ctx.save();
-  rr(ctx, x + pad / 2, y + pad / 2, w - pad, h - pad, radius);
+  rr(ctx, x, y, w, h, radius);
   ctx.clip();
 
-  const scale = Math.max((w - pad) / shot.width, (h - pad) / shot.height);
+  const scale = Math.max(w / shot.width, h / shot.height);
   const sw = shot.width * scale;
   const sh = shot.height * scale;
   const dx = x + (w - sw) / 2;
@@ -1092,19 +1091,19 @@ function cropToCanvas(source, targetW, targetH){
 
 function makeCustomFrames(){
   const layouts = [
-    { name:'Photodump 4 Slot', desc:'4 foto berbaris', n:4, ar:3/4, boxes:[[110, 290, 470, 420],[620, 290, 470, 420],[110, 820, 470, 420],[620, 820, 470, 420]] },
-    { name:'Photodump Classic', desc:'layout 2 kolom klasik', n:4, ar:1, boxes:[[130, 300, 470, 420],[600, 300, 470, 420],[130, 850, 470, 420],[600, 850, 470, 420]] },
-    { name:'Mahasiswa Award', desc:'3 foto, gaya jurnal', n:3, ar:3/4, boxes:[[118, 260, 964, 390],[118, 700, 964, 390],[118, 1140, 964, 390]] },
-    { name:'Award Vintage', desc:'6 foto jurusan', n:6, ar:1, boxes:[[95, 220, 440, 330],[665, 220, 440, 330],[95, 610, 440, 330],[665, 610, 440, 330],[95, 1000, 440, 330],[665, 1000, 440, 330]] },
-    { name:'Award Premium', desc:'4 foto format elegan', n:4, ar:3/4, boxes:[[112, 340, 470, 420],[618, 340, 470, 420],[112, 875, 470, 420],[618, 875, 470, 420]] }
+    { name:'Photodump 4 Slot', desc:'4 foto berbaris', n:4, ar:1.31, boxes:[[50, 444, 452, 346],[524, 444, 450, 346],[50, 814, 452, 346],[524, 814, 450, 348]] },
+    { name:'Photodump Classic', desc:'layout 2 kolom klasik', n:4, ar:1.24, boxes:[[40, 370, 460, 370],[524, 372, 460, 368],[40, 772, 460, 370],[524, 772, 460, 370]] },
+    { name:'Mahasiswa Award', desc:'6 foto, gaya jurnal', n:6, ar:1.83, boxes:[[52, 418, 442, 242],[526, 414, 448, 248],[50, 690, 444, 238],[532, 690, 442, 238],[50, 966, 442, 246],[532, 962, 442, 246]] },
+    { name:'Award Vintage', desc:'4 foto jurusan', n:4, ar:1.44, boxes:[[32, 510, 466, 324],[528, 510, 464, 324],[32, 872, 466, 328],[528, 872, 464, 328]] },
+    { name:'Award Premium', desc:'6 foto format elegan', n:6, ar:1.54, boxes:[[36, 242, 454, 294],[536, 242, 452, 294],[36, 580, 454, 296],[536, 580, 452, 296],[36, 916, 454, 296],[536, 916, 452, 296]] }
   ];
 
   return layouts.map((layout, index) => ({
     id: `custom-${index + 1}`,
     name: layout.name,
     desc: layout.desc,
-    W: 1200,
-    H: 1600,
+    W: 1024,
+    H: 1536,
     n: layout.n,
     ar: layout.ar,
     boxes: layout.boxes,
@@ -1113,18 +1112,18 @@ function makeCustomFrames(){
       if (template) {
         ctx.drawImage(template, 0, 0, 1200, 1600);
       } else {
-        ctx.fillStyle = '#f5efe7'; ctx.fillRect(0, 0, 1200, 1600);
-        ctx.fillStyle = '#1d4e3d'; ctx.fillRect(0, 0, 1200, 28);
-        ctx.fillStyle = '#dcb978'; ctx.fillRect(0, 1560, 1200, 40);
+        ctx.fillStyle = '#f5efe7'; ctx.fillRect(0, 0, 1024, 1536);
+        ctx.fillStyle = '#1d4e3d'; ctx.fillRect(0, 0, 1024, 28);
+        ctx.fillStyle = '#dcb978'; ctx.fillRect(0, 1496, 1024, 40);
       }
       layout.boxes.forEach(([x, y, w, h], i) => {
         drawTemplatePhoto(ctx, shots[i], x, y, w, h, 8);
       });
-      if (m && m.title) {
+      if (!template && m && m.title) {
         ctx.fillStyle = '#1d4e3d';
         ctx.font = '700 80px "DM Sans", sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(m.title.toUpperCase(), 600, 1500);
+        ctx.fillText(m.title.toUpperCase(), 512, 1460);
       }
     }
   }));
