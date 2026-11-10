@@ -93,6 +93,7 @@
   .event-kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--coral)}
   .booth-note{font-size:14px;color:var(--muted);margin:14px 0 0}
   .studio-quick-note{font-size:12px;color:var(--muted);margin:6px 0 0}
+  .studio-pose{min-height:1.4em;margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
   .intro .art{min-height:0;height:min(62svh,560px);gap:18px;overflow:visible}
   .intro .art canvas{width:auto;height:auto;max-width:46%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 18px 34px rgba(32,42,38,.16)}
   .intro .art canvas:first-child{height:56%;transform:rotate(-5deg) translateY(6px)}
@@ -108,7 +109,7 @@
   .studio-stage .studio-source{position:absolute;width:2px;height:2px;opacity:0;pointer-events:none}
   .studio-stage canvas{display:block;width:auto;max-width:100%;height:100%;object-fit:contain;flex:0 1 auto}
   .camera-placeholder{margin:8px 2px 0;color:var(--muted);font-size:13px;text-align:center}
-  .studio-stage.live+.camera-placeholder,.studio-stage.has-shots+.camera-placeholder{display:none}
+  .studio-stage.live~.camera-placeholder,.studio-stage.has-shots~.camera-placeholder{display:none}
   .studio-stage .studio-frame-label{position:absolute;z-index:2;left:14px;top:14px;padding:7px 12px;border-radius:999px;background:rgba(23,19,18,.72);color:#fff;font-size:13px;font-weight:700}
   .studio-stage .studio-pose{position:absolute;z-index:2;right:14px;top:14px;padding:7px 12px;border-radius:999px;background:rgba(23,19,18,.72);color:#fff;font-size:13px}
   .studio-actions{display:flex;gap:12px;align-items:center;margin-top:14px}
@@ -736,8 +737,8 @@
           <video id="studioVideo" class="studio-source" playsinline muted></video>
           <canvas id="studioCanvas" aria-label="Pratinjau frame dengan kamera"></canvas>
           <span class="studio-frame-label" id="studioFrameLabel">Strip Pastel</span>
-          <span class="studio-pose" id="studioPoseLabel">Kamera belum aktif</span>
         </div>
+        <p class="studio-pose" id="studioPoseLabel" aria-live="polite">Kamera belum aktif</p>
         <p class="camera-placeholder" id="studioPlaceholder">Preview memakai contoh frame. Aktifkan kamera untuk melihat fotomu langsung.</p>
         <div class="studio-actions">
           <button class="btn" id="studioEnableCamera" type="button">Aktifkan kamera</button>
