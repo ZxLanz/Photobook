@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Foto kamu — Pojok Foto</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f6f2ea;--ink:#1c2a25;--muted:#5d6a63;--coral:#1f4d3f;--coral-dark:#12302a;--card:#fff;--line:#ddd5c4;--gold:#b08d57}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;min-height:100vh;color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;line-height:1.6;background:#f4efe8}
+  .viewer{max-width:640px;margin:0 auto;padding:24px 18px 36px}
+  .frame{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(28,42,37,.08)}
+  .photo{display:block;width:100%;height:auto;max-height:76vh;object-fit:contain;margin:0 auto;border-radius:12px;background:#f7f4ef}
+  .actions{display:flex;gap:10px;justify-content:center;margin-top:14px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 18px;border:1px solid var(--gold);cursor:pointer;
+    font:700 13px 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--coral);border-radius:999px;text-decoration:none}
+  .btn:active{transform:scale(.99)}
+  .btn:focus-visible{outline:3px solid #2b6cb0;outline-offset:3px}
+  .state{display:none}
+  .state.active{display:block}
+  .loading{display:grid;place-items:center;gap:14px;padding:30px 0;color:var(--muted);font-size:15px}
+  .spinner{width:42px;height:42px;border:4px solid rgba(31,77,63,.18);border-top-color:var(--coral);border-radius:50%;animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .notice{margin-top:18px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:#fffaf0;color:#5f4b31;font-size:14px;text-align:center}
+  @media (max-width:480px){.viewer{padding:16px 12px 26px}.frame{padding:12px;border-radius:14px}.actions{flex-direction:column}.btn{width:100%}}
+</style>
+</head>
+<body>
+<main class="viewer">
+  <section id="stLoad" class="state active" aria-live="polite">
+    <div class="frame loading">
+      <div class="spinner" aria-hidden="true"></div>
+      <div>Siap menampilkan foto…</div>
+    </div>
+  </section>
+
+  <section id="stOk" class="state" aria-live="polite">
+    <div class="frame">
+      <img id="photo" class="photo" alt="Hasil foto dari Pojok Foto">
+      <div class="actions">
+        <button class="btn" id="btnSave" type="button">Download</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="stErr" class="state" role="alert">
+    <div class="frame notice">
+      Foto tidak tersedia atau tautannya salah. Silakan scan ulang QR dari layar atau minta bantuan petugas.
+    </div>
+  </section>
+</main>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  const APP = window.APP_CONFIG || {};
+  const $ = id => document.getElementById(id);
+  const id = new URLSearchParams(location.search).get('id') || '';
+  const valid = /^(?:[a-f0-9]{32}|[a-z0-9]{8})$/i.test(id);
+
+  function show(name){
+    ['stLoad','stOk','stErr'].forEach(k => $(k).classList.toggle('active', k === name));
+  }
+
+  if (!valid){ show('stErr'); return; }
+
+  if (!APP.supabaseUrl || !APP.supabaseAnonKey){
+    const msg = 'Mode demo aktif: foto belum diunggah ke Supabase.';
+    $('stErr').firstElementChild.textContent = msg;
+    show('stErr');
+    return;
+  }
+
+  const url = `${String(APP.supabaseUrl).replace(/\/$/, '')}/storage/v1/object/public/${encodeURIComponent(APP.bucket || 'photos')}/${encodeURIComponent(`${id}.jpg`)}`;
+  const img = $('photo');
+  img.onload = () => show('stOk');
+  img.onerror = () => show('stErr');
+  img.src = url;
+
+  $('btnSave').addEventListener('click', async () => {
+    const btn = $('btnSave');
+    const old = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Menyimpan…';
+    try {
+      const res = await fetch(url); if (!res.ok) throw new Error('gagal');
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = `pojok-foto-${id}.jpg`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    } catch (e) {
+      window.open(url, '_blank');
+    } finally {
+      btn.disabled = false; btn.textContent = old;
+    }
+  });
+})();
+</script>
+</body>
+</html>
